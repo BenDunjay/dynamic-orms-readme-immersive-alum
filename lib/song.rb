@@ -1,9 +1,7 @@
 require_relative "../config/environment.rb"
-require 'active_support/inflector'
+require "active_support/inflector"
 
 class Song
-
-
   def self.table_name
     self.to_s.downcase.pluralize
   end
@@ -18,14 +16,14 @@ class Song
     table_info.each do |row|
       column_names << row["name"]
     end
-    column_names.compact
+    column_names.compact # compact gets rid of all nil values.
   end
 
   self.column_names.each do |col_name|
     attr_accessor col_name.to_sym
   end
 
-  def initialize(options={})
+  def initialize(options = {})
     options.each do |property, value|
       self.send("#{property}=", value)
     end
@@ -50,15 +48,12 @@ class Song
   end
 
   def col_names_for_insert
-    self.class.column_names.delete_if {|col| col == "id"}.join(", ")
+    byebug
+    self.class.column_names.delete_if { |col| col == "id" }.join(", ")
   end
 
   def self.find_by_name(name)
-    sql = "SELECT * FROM #{self.table_name} WHERE name = '#{name}'"
-    DB[:conn].execute(sql)
+    sql = "SELECT * FROM #{self.table_name} WHERE name = ?"
+    DB[:conn].execute(sql, name)
   end
-
 end
-
-
-
